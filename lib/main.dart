@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:io' show Platform;
-
-import 'package:location_permissions/location_permissions.dart';
+import 'scan.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:bluetooth/global.dart';
+import 'alarm.dart';
 
 //SplashScreens
 class SplashScreen extends StatefulWidget {
@@ -66,91 +65,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-// Some state management stuff
-  bool _foundDeviceWaitingToConnect = false;
-  bool _scanStarted = false;
-  bool _connected = false;
-// Bluetooth related variables
-  late DiscoveredDevice _ubiqueDevice;
-  final flutterReactiveBle = FlutterReactiveBle();
-  late StreamSubscription<DiscoveredDevice> _scanStream;
-  late QualifiedCharacteristic _rxCharacteristic;
-// These are the UUIDs of your device
-  final Uuid serviceUuid = Uuid.parse("75C276C3-8F97-20BC-A143-B354244886D4");
-  final Uuid characteristicUuid =
-      Uuid.parse("6ACF4F08-CC9D-D495-6B41-AA7E60C4E8A6");
-
-  void _startScan() async {
-// Platform permissions handling stuff
-    bool permGranted = false;
-    setState(() {
-      _scanStarted = true;
-    });
-    PermissionStatus permission;
-    if (Platform.isAndroid) {
-      permission = await LocationPermissions().requestPermissions();
-      if (permission == PermissionStatus.granted) permGranted = true;
-    } else if (Platform.isIOS) {
-      permGranted = true;
-    }
-// Main scanning logic happens here ⤵️
-    if (permGranted) {
-      _scanStream =
-          flutterReactiveBle.scanForDevices(withServices: []).listen((device) {
-        // Change this string to what you defined in Zephyr
-        if (device.name == 'UBIQUE') {
-          setState(() {
-            _ubiqueDevice = device;
-            _foundDeviceWaitingToConnect = true;
-          });
-        }
-      });
-    }
-  }
-
-  void _connectToDevice() {
-    // We're done scanning, we can cancel it
-    _scanStream.cancel();
-    // Let's listen to our connection so we can make updates on a state change
-    Stream<ConnectionStateUpdate> _currentConnectionStream = flutterReactiveBle
-        .connectToAdvertisingDevice(
-            id: _ubiqueDevice.id,
-            prescanDuration: const Duration(seconds: 1),
-            withServices: [serviceUuid, characteristicUuid]);
-    _currentConnectionStream.listen((event) {
-      switch (event.connectionState) {
-        // We're connected and good to go!
-        case DeviceConnectionState.connected:
-          {
-            _rxCharacteristic = QualifiedCharacteristic(
-                serviceId: serviceUuid,
-                characteristicId: characteristicUuid,
-                deviceId: event.deviceId);
-            setState(() {
-              _foundDeviceWaitingToConnect = false;
-              _connected = true;
-            });
-            break;
-          }
-        // Can add various state state updates on disconnect
-        case DeviceConnectionState.disconnected:
-          {
-            break;
-          }
-        default:
-      }
-    });
-  }
-
-  void _partyTime() {
-    if (_connected) {
-      flutterReactiveBle
-          .writeCharacteristicWithResponse(_rxCharacteristic, value: [
-        0xff,
-      ]);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,63 +93,20 @@ class _HomePageState extends State<HomePage> {
       persistentFooterButtons: [
         // We want to enable this button if the scan has NOT started
         // If the scan HAS started, it should be disabled.
-        _scanStarted
-            // True condition
-            ? ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.grey, // background
-                  onPrimary: Colors.white, // foreground
-                ),
-                onPressed: () {},
-                child: const Icon(Icons.search),
-              )
-            // False condition
-            : ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // background
-                  onPrimary: Colors.white, // foreground
-                ),
-                onPressed: _startScan,
-                child: const Icon(Icons.search),
-              ),
-        _foundDeviceWaitingToConnect
-            // True condition
-            ? ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // background
-                  onPrimary: Colors.white, // foreground
-                ),
-                onPressed: _connectToDevice,
-                child: const Icon(Icons.bluetooth),
-              )
-            // False condition
-            : ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.grey, // background
-                  onPrimary: Colors.white, // foreground
-                ),
-                onPressed: () {},
-                child: const Icon(Icons.bluetooth),
-              ),
-        _connected
-            // True condition
-            ? ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // background
-                  onPrimary: Colors.white, // foreground
-                ),
-                onPressed: _partyTime,
-                child: const Icon(Icons.send),
-              )
-            // False condition
-            : ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.grey, // background
-                  onPrimary: Colors.white, // foreground
-                ),
-                onPressed: () {},
-                child: const Icon(Icons.send),
-              ),
+        // True condition
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            primary: Colors.blue, // background
+            onPrimary: Colors.white, // foreground
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ScanPage()),
+            );
+          },
+          child: const Icon(Icons.search),
+        ),
         ElevatedButton(
           child: const Icon((Icons.list)),
           onPressed: () {
@@ -250,7 +121,7 @@ class _HomePageState extends State<HomePage> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SecondRoute()),
+              MaterialPageRoute(builder: (context) => const NewPage()),
             );
           },
         ),
@@ -283,13 +154,14 @@ class TodayDateWidget extends StatelessWidget {
   }
 }
 
-var push_up_cnt = 0;
-var sit_up_cnt = 0;
-var plank_cnt = 0;
-
-class SecondRoute extends StatelessWidget {
+class SecondRoute extends StatefulWidget {
   const SecondRoute({super.key});
+  @override
+  _SecondRouteState createState() => _SecondRouteState();
+}
 
+class _SecondRouteState extends State<SecondRoute> {
+  List<DataRow> dataRows = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -320,14 +192,7 @@ class SecondRoute extends StatelessWidget {
               'Plank',
               style: ColumnTextStyle.defaultStyle,
             )),
-          ], rows: <DataRow>[
-            DataRow(cells: <DataCell>[
-              DataCell(TodayDateWidget()),
-              DataCell(Text(push_up_cnt.toString())),
-              DataCell(Text(sit_up_cnt.toString())),
-              DataCell(Text(plank_cnt.toString())),
-            ]),
-          ]),
+          ], rows: dataRows),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
@@ -337,11 +202,24 @@ class SecondRoute extends StatelessWidget {
         ],
       ),
       floatingActionButton: Container(
-        margin: EdgeInsets.only(bottom: 16.0, right: 16.0),
+        margin: const EdgeInsets.only(bottom: 16.0, right: 16.0),
         child: FloatingActionButton(
           onPressed: () {
             // + 버튼을 눌렀을 때 동작할 코드
-            print('Button Pressed');
+            DataRow newRow = DataRow(cells: <DataCell>[
+              DataCell(TodayDateWidget()),
+              DataCell(Text(pushUpsCnt.toString())),
+              DataCell(Text(sitUpsCnt.toString())),
+              DataCell(Text(plankCnt.toString())),
+            ]);
+
+            // 생성한 데이터 로우 추가
+            setState(() {
+              dataRows.add(newRow);
+            });
+
+            // 추가된 데이터 로우를 출력
+            print('New row added: $newRow');
           },
           child: Icon(Icons.add),
         ),

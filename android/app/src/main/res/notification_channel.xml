@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<channel xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@string/channel_id"
+    android:name="channel_name"
+    android:description="channel_description"
+    android:importance="high"
+    android:priority="high" />
