@@ -6,8 +6,8 @@ Arduino 로 만든 하드웨어의 데이터 값들을
 
 다음 프로젝트는 다음과 같은 구조로 되어 있습니다
 
-flutter_blue_plus 패키지를 사용하여 블루투스 연결
+1. flutter_blue_plus 패키지를 사용하여 블루투스 연결
 
-flutter_local_notifications 패키지를 푸쉬 알림 설정
+2. flutter_local_notifications 패키지를 푸쉬 알림 설정
 
-블루투스 서비스를 리드하여 읽어들인 값들을 데이터셀로 추가하는 페이지 와 같이 구성되어 있습니다.
+3. 읽어들인 데이터 값들을 정규화하여 데이터셀로 추가하는 페이지로 구성되어 있습니다.
