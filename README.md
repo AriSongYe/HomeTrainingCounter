@@ -1,16 +1,11 @@
-# bluetooth
+## 홈 트레이닝 카운터
 
-A new Flutter project.
+Arduino 로 만든 하드웨어의 데이터 값들을
+블루투스 모듈을 통해 디바이스와 연결하여
+읽어들인 값들을 정규화하여 기록하는 프로젝트입니다.
 
-## Getting Started
+다음 프로젝트는 다음과 같은 구조로 되어 있습니다
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+flutter_blue_plus 패키지를 사용하여 블루투스 연결
+flutter_local_notifications 패키지를 푸쉬 알림 설정
+블루투스 서비스를 리드하여 읽어들인 값들을 데이터셀로 추가하는 페이지 와 같이 구성되어 있습니다.
