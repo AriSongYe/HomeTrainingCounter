@@ -14,7 +14,8 @@ Arduino 로 만든 하드웨어의 데이터 값들을
 
 3. 읽어들인 데이터 값들을 정규화하여 데이터셀로 추가하는 페이지로 구성되어 있습니다.
 
-// CLI to Practice Project
+### CLI to Practice Project
+
 `flutter run`
 
 어플리케이션을 사용하고 싶다면 실행하기만 하면됩니다!
