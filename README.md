@@ -19,3 +19,7 @@ Arduino 로 만든 하드웨어의 데이터 값들을
 `flutter run`
 
 어플리케이션을 사용하고 싶다면 실행하기만 하면됩니다!
+
+[HomeTrainingCounter_시연영상](https://youtu.be/H6qXVd88m9M)
+
+[HomeTrainingCounter_Flutter_iOS_Test](https://youtu.be/dDl8ZatepUY)
