@@ -1,4 +1,6 @@
 ## 홈 트레이닝 카운터
+<img width="795" alt="hardware" src="https://github.com/AriSongYe/HomeTrainingCounter/assets/82326075/86a88fab-815d-45de-9808-b7a0be86dc6b">
+
 
 Arduino 로 만든 하드웨어의 데이터 값들을
 
